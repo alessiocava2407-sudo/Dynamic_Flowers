@@ -1,0 +1,57 @@
+:root {
+  color-scheme: dark;
+  --ink: rgba(255, 255, 255, 0.76);
+}
+
+* { box-sizing: border-box; }
+html, body { width: 100%; min-height: 100%; margin: 0; }
+body {
+  overflow: hidden;
+  background: #090a0f;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+.garden {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #090a0f;
+}
+.garden__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-x pan-y;
+}
+.garden__instructions {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: min(90vw, 34rem);
+  margin: 0;
+  padding: 1rem 1.25rem;
+  transform: translate(-50%, -50%);
+  color: var(--ink);
+  text-align: center;
+  font: clamp(1rem, 3.5vw, 1.35rem)/1.6 Georgia, serif;
+  letter-spacing: .035em;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 1.4s ease;
+  text-shadow: 0 2px 18px rgba(0,0,0,.35);
+}
+.garden__instructions span {
+  display: block;
+  margin-top: .35rem;
+  color: rgba(255,255,255,.38);
+  font: 400 .72rem/1.5 system-ui, sans-serif;
+  letter-spacing: .08em;
+}
+.garden__instructions.hidden { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .garden__instructions { transition-duration: .2s; }
+}
