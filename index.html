@@ -110,7 +110,7 @@ function qBez(a, b, c, t) {
 }
 
 const isCompact = () => Math.min(W, H) < 760;
-const getMaxFlowers = () => (isCompact() ? 24 : 38);
+const getMaxFlowers = () => (isCompact() ? 18 : 28);
 
 /* ═══════ PARTICLE SPRITES ═══════ */
 function createParticleSprite(r, g, b) {
@@ -139,7 +139,7 @@ function resize() {
     const zoomScale = window.visualViewport ? window.visualViewport.scale : 1;
     const rawDpr = window.devicePixelRatio || 1;
     const compact = Math.min(nextW, nextH) < 760;
-    const nextDpr = Math.min(rawDpr * zoomScale, compact ? 1.75 : 2.0);
+    const nextDpr = Math.min(rawDpr * zoomScale, compact ? 1.25 : 1.5);
 
     if (W && H && nextW === W && Math.abs(nextH - H) <= 70 && nextDpr === dpr) return;
     if (nextW === W && nextH === H && nextDpr === dpr) return;
@@ -270,7 +270,7 @@ class Flower {
     constructor(x) {
         this.id = nextFlowerId++;
         this.curY = H;
-        this.growV = 3.2 + Math.random() * 2.2;
+        this.growV = 8 + Math.random() * 4;
         this.grown = false;
         this.bloom = 0;
 
@@ -368,7 +368,7 @@ class Flower {
             }
         } else {
             if (this.bloom < 1) {
-                this.bloom = Math.min(1, this.bloom + 0.014);
+                this.bloom = Math.min(1, this.bloom + 0.04);
                 if (this.bloom >= 1 && !this.headCache) {
                     this.cacheFlowerHead();
                 }
@@ -376,8 +376,8 @@ class Flower {
             this.swPh += this.swSp * (0.8 + Math.abs(wind) * 0.12);
             this.brPh += 0.013;
             this.life--;
-            if (this.life <= 0 || this.retiring) {
-                this.op -= this.retiring ? 0.025 : 0.0035;
+            if (this.life <= 0 && !this.retiring) {
+                this.op -= 0.0035;
                 if (!this.shed && Math.random() < 0.05) {
                     this.shedPetal();
                     this.shed = true;
@@ -385,6 +385,8 @@ class Flower {
                 if (Math.random() < 0.012) this.shedPetal();
             }
         }
+
+        if (this.retiring) this.op -= 0.04;
 
         if (mouse.x !== undefined) {
             const d = Math.hypot(this.tipX - mouse.x, this.curY - mouse.y);
@@ -496,7 +498,7 @@ class Flower {
     }
 
     cacheFlowerHead() {
-        const pad = Math.ceil(this.sz * 3.4);
+        const pad = Math.ceil(this.sz * (this.type === 2 ? 4.5 : 3.4));
         const size = pad * 2;
         const headCanvas = document.createElement('canvas');
         headCanvas.width = Math.ceil(size * dpr);
@@ -1120,13 +1122,25 @@ function hideInstructions() {
 
 function addFlower(x, time) {
     const maxF = getMaxFlowers();
+    const hardLimit = maxF + 4;
     if (flowers.length >= maxF) {
-        let oldest = flowers[0];
-        for (let i = 1; i < flowers.length; i++) {
-            if (flowers[i].id < oldest.id) oldest = flowers[i];
+        let oldest = null;
+        for (let i = 0; i < flowers.length; i++) {
+            if (!flowers[i].retiring && (!oldest || flowers[i].id < oldest.id)) oldest = flowers[i];
         }
-        oldest.retiring = true;
-        oldest.life = Math.min(oldest.life, 30);
+        if (oldest) {
+            oldest.retiring = true;
+            oldest.life = 0;
+        }
+    }
+
+    while (flowers.length >= hardLimit) {
+        let oldestIndex = 0;
+        for (let i = 1; i < flowers.length; i++) {
+            if (flowers[i].id < flowers[oldestIndex].id) oldestIndex = i;
+        }
+        flowers[oldestIndex].destroy();
+        flowers.splice(oldestIndex, 1);
     }
     flowers.push(new Flower(x + (Math.random() - 0.5) * 14));
     lastST = time;

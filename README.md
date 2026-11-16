@@ -47,6 +47,7 @@ Il disegno originale di gigli e peonie è stato conservato. Sono stati aggiunti 
 - **Profondità:** vegetazione di fondo su tre piani, foschia bassa, foglie e steli con dimensioni differenziate.
 - **Fisica:** brezza variabile nel tempo, risposta indipendente di ogni stelo, inerzia e resistenza dell'aria per i petali in caduta.
 - **Prestazioni:** fondale e teste dei fiori vengono memorizzati in cache; DPR limitato, numero massimo di fiori/particelle controllato e animazione sospesa quando la scheda non è visibile.
+- **Cache delle peonie:** il riquadro di rendering delle peonie include margine aggiuntivo per contenere tutti i petali esterni senza tagliarli.
 
 ### Valutazione WebGL
 
