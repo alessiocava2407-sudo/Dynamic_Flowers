@@ -13,6 +13,11 @@ npm run dev
 ```
 Apri http://localhost:3000.
 
+## Verifiche
+```bash
+npm run check   # lint + typecheck + build
+```
+
 ## Build di produzione
 ```bash
 npm run build
@@ -38,6 +43,16 @@ https://alessiocava2407-sudo.github.io/Dynamic_Flowers/
 
 ## Note tecniche
 Il disegno originale di gigli e peonie è stato conservato. Sono stati aggiunti cleanup degli event listener e del frame loop, gestione Pointer Events unificata per mouse e touch, sospensione in background, limite DPR più prudente e densità dello sfondo proporzionata all'area disponibile.
+
+Le ottimizzazioni successive includono:
+
+- **Physics indipendente dal refresh rate:** ogni incremento è normalizzato a 60 fps; i frame extra dei display a 120/144/240 Hz vengono ignorati, mantenendo la fluidità senza consumo doppio.
+- **Meno lavoro per frame:** posizione della punta del fiore calcolata una volta e riutilizzata, contesto dei canvas in pool riutilizzato senza `getContext()` ripetuti, sprite delle particelle risolti al momento della creazione, alpha delle particelle senza `save()/restore()` e comparatore di sort condiviso.
+- **Cache dei fiori:** teste dei fiori e fondale prerenderizzati; il fondale viene disegnato a 1:1, quindi la qualità di resampling del contesto principale è `medium` (i dettagli restano `high` nella cache).
+- **Accessibilità:** zoom abilitato, testo di fallback nel canvas, etichette ARIA e rispetto di `prefers-reduced-motion` (giardino statico che reagisce comunque al puntatore).
+- **Metadati:** Open Graph/Twitter e `color-scheme` coerente con la pagina.
+
+`index.html` e `original-index.html` nella radice sono istantanee storiche del progetto originale: non vengono usate dalla build, che legge solo `app/`, `components/` e `lib/`.
 
 
 ## Aggiornamenti della versione

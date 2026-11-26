@@ -15,7 +15,14 @@ export default function FlowerGarden() {
 
   return (
     <main className="garden" aria-label="Giardino animato di gigli e peonie">
-      <canvas ref={canvasRef} className="garden__canvas" aria-label="Giardino interattivo: muovi il puntatore o tocca lo schermo per far crescere i fiori" />
+      <canvas
+        ref={canvasRef}
+        className="garden__canvas"
+        role="img"
+        aria-label="Giardino notturno interattivo: muovi il puntatore o tocca lo schermo per far crescere gigli e peonie"
+      >
+        Un giardino notturno di gigli e peonie fiorisce al passaggio del puntatore.
+      </canvas>
       <p ref={instructionRef} className="garden__instructions">
         Muovi il puntatore o tocca lo schermo
         <span>Un piccolo giardino prende vita al tuo passaggio</span>
