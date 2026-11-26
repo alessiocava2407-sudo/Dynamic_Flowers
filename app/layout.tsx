@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const title = "Giardino di Gigli e Peonie";
+const title = "Interactive Canvas";
 const description =
-  "Un giardino notturno interattivo: gigli e peonie fioriscono al passaggio del puntatore.";
+  "Un'esperienza visiva interattiva: muovi il mouse o tocca lo schermo per far crescere i fiori.";
 
 export const metadata: Metadata = {
   title,
   description,
-  applicationName: "Fioritura",
+  applicationName: "Interactive Canvas",
   metadataBase: new URL("https://alessiocava2407-sudo.github.io/Dynamic_Flowers/"),
   openGraph: {
     title,

@@ -10,11 +10,13 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
+  bouquetTargets,
   flowerGeometry,
   makeFaller,
   makeFlower,
   type FallingPetal,
   type Flower,
+  type FlowerTarget,
 } from "@/lib/garden";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
@@ -82,11 +84,32 @@ function Defs() {
         <stop offset="0.55" stopColor="#ffd8e0" stopOpacity="0.07" />
         <stop offset="1" stopColor="#ffd8e0" stopOpacity="0" />
       </radialGradient>
+      <linearGradient id="ribbon-band" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stopColor="#b5406c" />
+        <stop offset="0.5" stopColor="#f2a8c2" />
+        <stop offset="1" stopColor="#b5406c" />
+      </linearGradient>
+      <linearGradient id="ribbon-loop" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stopColor="#f6c3d4" />
+        <stop offset="1" stopColor="#a8345e" />
+      </linearGradient>
     </defs>
   );
 }
 
-function FlowerShape({ flower, w, h, detail }: { flower: Flower; w: number; h: number; detail: boolean }) {
+function FlowerShape({
+  flower,
+  w,
+  h,
+  detail,
+  target,
+}: {
+  flower: Flower;
+  w: number;
+  h: number;
+  detail: boolean;
+  target?: FlowerTarget;
+}) {
   const geometry = useMemo(
     () => flowerGeometry(flower, w, h, detail),
     [flower, w, h, detail],
@@ -94,6 +117,7 @@ function FlowerShape({ flower, w, h, detail }: { flower: Flower; w: number; h: n
   const scale = clamp(Math.min(w, h) / 780, 0.62, 1.2);
   const s = flower.size * scale;
   const tipY = -flower.height * h;
+  const place = target ?? { x: flower.nx * w, y: h, scale: 1, rotate: 0 };
 
   const vars: Vars = {
     "--sway-from": `${px(-flower.sway)}deg`,
@@ -104,7 +128,12 @@ function FlowerShape({ flower, w, h, detail }: { flower: Flower; w: number; h: n
   };
 
   return (
-    <g transform={`translate(${px(flower.nx * w)} ${h})`} className="flower">
+    <g
+      className={target ? "flower flower--bouquet" : "flower"}
+      style={{
+        transform: `translate(${px(place.x)}px, ${px(place.y)}px) rotate(${px(place.rotate)}deg) scale(${px(place.scale)})`,
+      }}
+    >
       <g className="flower__sway" style={vars}>
         <path className="flower__stem" d={geometry.stem} />
         {geometry.leaves.map((d, i) => (
@@ -173,10 +202,42 @@ function FallingPetalShape({ petal, w, h }: { petal: FallingPetal; w: number; h:
   );
 }
 
+function Ribbon({ w, h }: { w: number; h: number }) {
+  const cx = w / 2;
+  const cy = h * 0.73;
+  const half = Math.min(w * 0.16, 78);
+  const bandH = Math.max(12, Math.min(h * 0.026, 20));
+
+  return (
+    <g className="ribbon" aria-hidden="true">
+      <path
+        d={`M ${px(cx - half * 0.35)} ${px(cy + bandH * 0.3)} Q ${px(cx - half * 0.8)} ${px(cy + h * 0.08)}, ${px(cx - half * 0.5)} ${px(cy + h * 0.13)} L ${px(cx - half * 0.05)} ${px(cy + bandH * 0.5)} Z`}
+        fill="url(#ribbon-loop)"
+      />
+      <path
+        d={`M ${px(cx + half * 0.35)} ${px(cy + bandH * 0.3)} Q ${px(cx + half * 0.8)} ${px(cy + h * 0.08)}, ${px(cx + half * 0.5)} ${px(cy + h * 0.13)} L ${px(cx + half * 0.05)} ${px(cy + bandH * 0.5)} Z`}
+        fill="url(#ribbon-loop)"
+      />
+      <rect
+        x={px(cx - half)}
+        y={px(cy - bandH / 2)}
+        width={px(half * 2)}
+        height={px(bandH)}
+        rx={px(bandH / 2)}
+        fill="url(#ribbon-band)"
+      />
+      <ellipse cx={px(cx - half * 0.5)} cy={px(cy)} rx={px(half * 0.34)} ry={px(bandH * 0.72)} fill="url(#ribbon-loop)" />
+      <ellipse cx={px(cx + half * 0.5)} cy={px(cy)} rx={px(half * 0.34)} ry={px(bandH * 0.72)} fill="url(#ribbon-loop)" />
+      <circle cx={px(cx)} cy={px(cy)} r={px(bandH * 0.52)} fill="#c9527b" />
+    </g>
+  );
+}
+
 export default function FlowerGarden() {
   const rootRef = useRef<HTMLElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [flowers, setFlowers] = useState<Flower[]>([]);
+  const [bouquet, setBouquet] = useState<Flower[] | null>(null);
   const [fallers, setFallers] = useState<FallingPetal[]>([]);
   const [interacted, setInteracted] = useState(false);
 
@@ -231,6 +292,23 @@ export default function FlowerGarden() {
     setFlowers(next);
   }, []);
 
+  const clearGarden = useCallback(() => {
+    for (const timer of timersRef.current) window.clearTimeout(timer);
+    timersRef.current = [];
+    flowersRef.current = [];
+    setBouquet(null);
+    setFlowers([]);
+    setFallers([]);
+  }, []);
+
+  const cutGarden = useCallback(() => {
+    if (!flowersRef.current.length) return;
+    for (const timer of timersRef.current) window.clearTimeout(timer);
+    timersRef.current = [];
+    setFallers([]);
+    setBouquet(flowersRef.current.slice());
+  }, []);
+
   useEffect(
     () => () => {
       for (const timer of timersRef.current) window.clearTimeout(timer);
@@ -252,6 +330,7 @@ export default function FlowerGarden() {
 
   const onPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (bouquet) clearGarden();
     hideInstructions();
     addFlower(normalizedX(event));
     lastRef.current = { x: event.clientX, y: event.clientY, t: performance.now(), down: true };
@@ -264,6 +343,7 @@ export default function FlowerGarden() {
     const distance = Math.hypot(event.clientX - last.x, event.clientY - last.y);
     const minDistance = sizeRef.current.w < 760 ? 34 : 42;
     if (last.x < -1000 || (distance >= minDistance && now - last.t >= 80)) {
+      if (bouquet) clearGarden();
       hideInstructions();
       addFlower(normalizedX(event));
       lastRef.current = { x: event.clientX, y: event.clientY, t: now, down: last.down };
@@ -275,12 +355,16 @@ export default function FlowerGarden() {
   };
 
   const detail = size.w >= 720;
+  const bouquetTargetsMap = useMemo(
+    () => (bouquet ? bouquetTargets(bouquet, size.w, size.h) : null),
+    [bouquet, size.w, size.h],
+  );
 
   return (
     <main
       ref={rootRef}
       className="garden"
-      aria-label="Giardino animato di gigli e peonie"
+      aria-label="Interactive Canvas"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endPointer}
@@ -297,14 +381,39 @@ export default function FlowerGarden() {
           focusable="false"
         >
           <Defs />
-          {flowers.map((flower) => (
-            <FlowerShape key={flower.id} flower={flower} w={size.w} h={size.h} detail={detail} />
+          {(bouquet ?? flowers).map((flower) => (
+            <FlowerShape
+              key={flower.id}
+              flower={flower}
+              w={size.w}
+              h={size.h}
+              detail={detail}
+              target={bouquetTargetsMap?.get(flower.id)}
+            />
           ))}
           {fallers.map((petal) => (
             <FallingPetalShape key={petal.id} petal={petal} w={size.w} h={size.h} />
           ))}
+          {bouquet && <Ribbon w={size.w} h={size.h} />}
         </svg>
       )}
+      <button
+        type="button"
+        className={flowers.length > 0 && !bouquet ? "garden__cut" : "garden__cut is-hidden"}
+        aria-label="Taglia i fiori e crea un mazzo"
+        onPointerDown={(event) => event.stopPropagation()}
+        onPointerMove={(event) => event.stopPropagation()}
+        onClick={() => {
+          hideInstructions();
+          cutGarden();
+        }}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="6" cy="6" r="2.4" />
+          <circle cx="6" cy="18" r="2.4" />
+          <path d="M8 7.6 20 18M8 16.4 20 6M12 12h-2" />
+        </svg>
+      </button>
       <p className={interacted ? "garden__instructions hidden" : "garden__instructions"}>
         Muovi il mouse o tocca lo schermo
       </p>

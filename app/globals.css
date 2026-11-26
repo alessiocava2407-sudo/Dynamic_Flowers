@@ -143,6 +143,27 @@ body {
   animation: fall var(--fall-duration) linear both;
 }
 
+/* The whole flower moves to its place in the bouquet when the scissors are used. */
+.flower--bouquet {
+  transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.flower--bouquet .flower__sway {
+  animation-play-state: paused;
+}
+
+.ribbon {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  animation: ribbon-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+}
+
+@keyframes ribbon-in {
+  from { opacity: 0; transform: scale(0.55) translateY(18px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 @keyframes sway {
   from { transform: rotate(var(--sway-from)); }
   to { transform: rotate(var(--sway-to)); }
@@ -170,6 +191,51 @@ body {
     transform: translate(var(--fall-drift), var(--fall-distance)) rotate(var(--fall-spin));
     opacity: 0;
   }
+}
+
+.garden__cut {
+  position: absolute;
+  z-index: 3;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  background: rgba(18, 20, 34, 0.78);
+  color: rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.35s ease, transform 0.35s ease, background 0.2s ease;
+}
+
+.garden__cut:hover {
+  background: rgba(38, 34, 52, 0.9);
+  transform: scale(1.06);
+}
+
+.garden__cut:focus-visible {
+  outline: 2px solid #f2a8c2;
+  outline-offset: 3px;
+}
+
+.garden__cut svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.garden__cut.is-hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
 }
 
 .garden__instructions {
@@ -205,13 +271,19 @@ body {
   .flower__stem,
   .flower__glow,
   .flower__bloom,
-  .faller {
+  .faller,
+  .ribbon {
     animation: none !important;
+  }
+
+  .flower--bouquet {
+    transition: none;
   }
 
   .flower__stem,
   .flower__bloom,
-  .flower__glow {
+  .flower__glow,
+  .ribbon {
     transform: none;
     opacity: 1;
   }

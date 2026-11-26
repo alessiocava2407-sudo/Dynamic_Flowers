@@ -1,6 +1,6 @@
-# Giardino di Gigli e Peonie — SVG
+# Interactive Canvas
 
-Giardino notturno interattivo pubblicato su GitHub Pages. La scena è SVG + CSS: nessun canvas, nessun devicePixelRatio e nessun loop `requestAnimationFrame`.
+Esperienza visiva interattiva pubblicata su GitHub Pages. La scena è SVG + CSS: nessun canvas, nessun devicePixelRatio e nessun loop `requestAnimationFrame`.
 
 ## Requisiti
 - Node.js 20.9 o superiore
@@ -33,8 +33,11 @@ Nel repository, apri **Settings → Pages** e imposta **Build and deployment →
 https://alessiocava2407-sudo.github.io/Dynamic_Flowers/
 
 ## Interazione
-- Desktop: muovi il puntatore per far crescere i fiori.
+- All'avvio non compare nessun fiore: il giardino aspetta la prima interazione.
+- Desktop: muovi il mouse per far crescere i fiori.
 - Touch: tocca o trascina sullo schermo.
+- Quando ci sono fiori, appare l'icona delle forbici in basso a destra: cliccandola i fiori si raggruppano in un mazzo avvolto da un nastro.
+- Toccando di nuovo lo schermo il mazzo si scioglie e ricomincia un nuovo giardino.
 - Il numero massimo di fiori dipende dalla dimensione dell'area visibile.
 - I fiori più vecchi vengono sostituiti da nuovi petali che cadono.
 

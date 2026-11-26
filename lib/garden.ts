@@ -87,7 +87,8 @@ export function makeFlower(id: number, nx: number, compact: boolean): Flower {
   return {
     id,
     nx: clamp(nx, 0.06, 0.94),
-    height: 0.38 + rnd() * 0.46,
+    // Shorter stems: the flowers stay in the lower half of the viewport.
+    height: 0.22 + rnd() * 0.3,
     size: (compact ? 20 : 24) + rnd() * 9,
     kind,
     tone: Math.floor(rnd() * 3),
@@ -305,4 +306,34 @@ export function makeFaller(id: number, flower: Flower, h: number): FallingPetal 
     size: 7 + rnd() * 7,
     color: pink ? "url(#lily-pink)" : "url(#lily-white)",
   };
+}
+
+export interface FlowerTarget {
+  x: number;
+  y: number;
+  scale: number;
+  rotate: number;
+}
+
+/** Where each flower goes when the scissors turn the garden into a bouquet. */
+export function bouquetTargets(flowers: Flower[], w: number, h: number): Map<number, FlowerTarget> {
+  const count = flowers.length;
+  const centerX = w / 2;
+  const baseY = h * 0.86;
+  const spread = Math.min(w * 0.16, 90);
+
+  return new Map(
+    flowers.map((flower, i) => {
+      const angle = (i / Math.max(1, count)) * TAU;
+      return [
+        flower.id,
+        {
+          x: round(centerX + Math.cos(angle) * spread),
+          y: round(baseY - Math.abs(Math.sin(angle)) * h * 0.05),
+          scale: round(0.52 + (i % 3) * 0.05),
+          rotate: round(Math.sin(angle) * 11),
+        },
+      ];
+    }),
+  );
 }
