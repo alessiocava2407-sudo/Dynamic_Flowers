@@ -9,7 +9,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -30,17 +31,145 @@ html, body {
   height: 100dvh;
   overflow: hidden;
   isolation: isolate;
-  background: #090a0f;
   touch-action: none;
+  background:
+    radial-gradient(ellipse 110% 65% at 50% 92%, rgba(78, 48, 88, 0.38), transparent 72%),
+    linear-gradient(180deg, #090a0f 0%, #101326 42%, #1a1423 78%, #050408 100%);
 }
 
-.garden__canvas {
+/* Static star field: no JavaScript, no redraw. */
+.garden__stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.7;
+  background-image:
+    radial-gradient(circle at 8% 16%, rgba(255, 250, 245, 0.85) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 19% 42%, rgba(255, 250, 245, 0.5) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 31% 11%, rgba(255, 250, 245, 0.7) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 43% 34%, rgba(255, 250, 245, 0.45) 0 0.9px, transparent 1.5px),
+    radial-gradient(circle at 55% 8%, rgba(255, 250, 245, 0.8) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 66% 29%, rgba(255, 250, 245, 0.5) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 78% 14%, rgba(255, 250, 245, 0.75) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 89% 38%, rgba(255, 250, 245, 0.45) 0 0.9px, transparent 1.5px),
+    radial-gradient(circle at 12% 58%, rgba(255, 250, 245, 0.4) 0 0.8px, transparent 1.4px),
+    radial-gradient(circle at 72% 52%, rgba(255, 250, 245, 0.35) 0 0.8px, transparent 1.4px);
+}
+
+.garden__haze {
+  position: absolute;
+  inset: auto 0 0;
+  height: 34%;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(104, 92, 112, 0) 0%,
+    rgba(110, 94, 115, 0.08) 55%,
+    rgba(15, 22, 22, 0.3) 100%
+  );
+}
+
+.garden__scene {
   position: absolute;
   inset: 0;
   display: block;
   width: 100%;
   height: 100%;
-  touch-action: none;
+  pointer-events: none;
+}
+
+/* Only transform and opacity are animated: both are compositor-friendly. */
+.flower__sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sway var(--sway-dur) ease-in-out var(--sway-delay) infinite alternate;
+}
+
+.flower__stem {
+  fill: none;
+  stroke: url(#sky-stem);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.flower__leaf {
+  fill: url(#sky-leaf);
+  opacity: 0.9;
+}
+
+.flower__glow {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: breathe 4.5s ease-in-out infinite;
+}
+
+.flower__bloom {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: bloom 0.8s cubic-bezier(0.16, 1, 0.3, 1) var(--bloom-delay) both;
+}
+
+.flower__petal {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 0.35;
+}
+
+.flower__marking {
+  stroke: none;
+}
+
+.flower__vein {
+  fill: none;
+  stroke: rgba(150, 105, 100, 0.16);
+  stroke-width: 0.4;
+}
+
+.flower__stamen {
+  fill: none;
+  stroke: rgba(214, 170, 70, 0.5);
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+
+.flower__anther {
+  fill: #e6b45c;
+  opacity: 0.85;
+}
+
+.faller {
+  animation: fall var(--fall-duration) linear both;
+}
+
+@keyframes sway {
+  from { transform: rotate(var(--sway-from)); }
+  to { transform: rotate(var(--sway-to)); }
+}
+
+@keyframes rise {
+  from { transform: scaleY(0.02); opacity: 0.3; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes bloom {
+  from { opacity: 0; transform: scale(0.2) rotate(-14deg); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.55; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes fall {
+  from { transform: translate(0, 0) rotate(0deg); opacity: 0.9; }
+  to {
+    transform: translate(var(--fall-drift), var(--fall-distance)) rotate(var(--fall-spin));
+    opacity: 0;
+  }
 }
 
 .garden__instructions {
@@ -54,7 +183,7 @@ html, body {
   transform: translate(-50%, -50%);
   color: var(--ink);
   text-align: center;
-  font: 400 clamp(1rem, 3.2vw, 1.35rem)/1.6 Georgia, serif;
+  font: 400 clamp(1rem, 3.2vw, 1.35rem) / 1.6 Georgia, serif;
   letter-spacing: 0.04em;
   pointer-events: none;
   user-select: none;
@@ -69,7 +198,7 @@ html, body {
   display: block;
   margin-top: 0.4rem;
   color: rgba(255, 255, 255, 0.48);
-  font: 400 clamp(0.72rem, 2.2vw, 0.82rem)/1.5 system-ui, -apple-system, sans-serif;
+  font: 400 clamp(0.72rem, 2.2vw, 0.82rem) / 1.5 system-ui, -apple-system, sans-serif;
   letter-spacing: 0.08em;
 }
 
@@ -80,8 +209,22 @@ html, body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .flower__sway,
+  .flower__stem,
+  .flower__glow,
+  .flower__bloom,
+  .faller {
+    animation: none !important;
+  }
+
+  .flower__stem,
+  .flower__bloom,
+  .flower__glow {
+    transform: none;
+    opacity: 1;
+  }
+
   .garden__instructions {
     transition-duration: 0.2s;
   }
 }
-
