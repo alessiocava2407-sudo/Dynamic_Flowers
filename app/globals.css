@@ -194,14 +194,6 @@ body {
   border-radius: 1rem;
 }
 
-.garden__instructions span {
-  display: block;
-  margin-top: 0.4rem;
-  color: rgba(255, 255, 255, 0.48);
-  font: 400 clamp(0.72rem, 2.2vw, 0.82rem) / 1.5 system-ui, -apple-system, sans-serif;
-  letter-spacing: 0.08em;
-}
-
 .garden__instructions.hidden {
   opacity: 0;
   transform: translate(-50%, -46%) scale(0.97);

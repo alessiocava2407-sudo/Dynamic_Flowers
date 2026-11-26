@@ -231,19 +231,6 @@ export default function FlowerGarden() {
     setFlowers(next);
   }, []);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      if (interactedRef.current) return;
-      const w = sizeRef.current.w;
-      if (!w) return;
-      const count = w < 760 ? 2 : 3;
-      for (let i = 0; i < count; i++) {
-        addFlower(0.24 + (0.52 * i) / Math.max(1, count - 1));
-      }
-    }, 650);
-    return () => window.clearTimeout(timer);
-  }, [addFlower]);
-
   useEffect(
     () => () => {
       for (const timer of timersRef.current) window.clearTimeout(timer);
@@ -319,8 +306,7 @@ export default function FlowerGarden() {
         </svg>
       )}
       <p className={interacted ? "garden__instructions hidden" : "garden__instructions"}>
-        Muovi il puntatore o tocca lo schermo
-        <span>Un piccolo giardino prende vita al tuo passaggio</span>
+        Muovi il mouse o tocca lo schermo
       </p>
     </main>
   );
