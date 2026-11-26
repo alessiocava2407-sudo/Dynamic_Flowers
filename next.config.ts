@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
 // In locale il sito risponde direttamente su http://localhost:3000/
-// Durante il deploy GitHub Actions imposta automaticamente il sottopercorso del repository
+// Durante il deploy GitHub Actions usa il nome reale del repository, così il
+// percorso resta corretto anche se il repository viene rinominato.
 const isGithubActions = process.env.GITHUB_ACTIONS === "true";
-const basePath = process.env.BASE_PATH ?? (isGithubActions ? "/Dynamic_Flowers" : "");
+const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1];
+const basePath = process.env.BASE_PATH ?? (isGithubActions && repoName ? `/${repoName}` : "");
 
 // Keep the development and production caches separate: mixing them makes the
 // webpack runtime load chunk IDs from the other build and crash with

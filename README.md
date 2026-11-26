@@ -24,13 +24,25 @@ npm run check   # lint + typecheck + build
 ```bash
 npm run build
 ```
-I file statici pronti per la pubblicazione vengono generati in `out/`.
+I file statici pronti per la pubblicazione vengono generati in `out/`. Su GitHub Pages il sito vive in un sottopercorso, quindi la build di pubblicazione usa `BASE_PATH=/Interactive-Canvas`:
+
+```bash
+BASE_PATH=/Interactive-Canvas npm run build          # macOS/Linux
+$env:BASE_PATH="/Interactive-Canvas"; npm run build  # PowerShell
+```
 
 ## Pubblicazione su GitHub Pages
-Il workflow `.github/workflows/deploy.yml` compila e pubblica il sito su GitHub Pages a ogni push sul branch `main`.
+Il workflow `.github/workflows/deploy.yml` compila e pubblica il sito su GitHub Pages a ogni push sul branch `main`. Il sito è disponibile all'indirizzo:
+https://alessiocava2407-sudo.github.io/Interactive-Canvas/
 
-Nel repository, apri **Settings → Pages** e imposta **Build and deployment → Source** su **GitHub Actions**. Dopo il completamento del workflow, il sito sarà disponibile all'indirizzo:
-https://alessiocava2407-sudo.github.io/Dynamic_Flowers/
+Pages è configurato anche per il deploy dal branch `main`: per questo motivo la radice del repository contiene una copia dell'export (`index.html`, `_next/`, `404.html`, `index.txt`, `.nojekyll`). Dopo una modifica all'interfaccia rigenera la copia con:
+
+```bash
+BASE_PATH=/Interactive-Canvas npm run build && cp -R out/. .   # macOS/Linux
+$env:BASE_PATH="/Interactive-Canvas"; npm run build; Copy-Item out\* -Destination . -Recurse -Force  # PowerShell
+```
+
+Il file `.nojekyll` è necessario affinché Pages non ignori la cartella `_next/`.
 
 ## Interazione
 - All'avvio non compare nessun fiore: il giardino aspetta la prima interazione.
@@ -57,4 +69,4 @@ La versione Canvas disegnava e ricacheava centinaia di forme a ogni frame, con c
 - `components/FlowerGarden.tsx`: scena SVG, eventi Pointer e gestione dei fiori.
 - `lib/garden.ts`: geometria generata da seed (forma stabile tra re-render e resize).
 
-`index.html` e `original-index.html` nella radice sono istantanee storiche del progetto originale: non vengono usate dalla build, che legge solo `app/`, `components/` e `lib/`.
+`index.html` nella radice è lo specchio dell'export Next usato dal deploy branch-based di Pages; `original-index.html` è l'istantanea storica della versione Canvas. La build legge solo `app/`, `components/` e `lib/`.

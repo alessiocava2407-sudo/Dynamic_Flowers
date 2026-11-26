@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title,
   description,
   applicationName: "Interactive Canvas",
-  metadataBase: new URL("https://alessiocava2407-sudo.github.io/Dynamic_Flowers/"),
+  metadataBase: new URL("https://alessiocava2407-sudo.github.io/Interactive-Canvas/"),
   openGraph: {
     title,
     description,
