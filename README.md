@@ -54,7 +54,7 @@ Il file `.nojekyll` è necessario affinché Pages non ignori la cartella `_next/
 - I fiori più vecchi vengono sostituiti da nuovi petali che cadono.
 
 ## Perché SVG/CSS
-La versione Canvas disegnava e ricacheava centinaia di forme a ogni frame, con costi imprevedibili su mobile Safari/Chrome (DPR, texture offscreen, fill rate). Qui il browser anima solo `transform` e `opacity` tramite CSS:
+Una vecchia versione Canvas disegnava e ricacheava centinaia di forme a ogni frame, con costi imprevedibili su mobile Safari/Chrome (DPR, texture offscreen, fill rate). Qui il browser anima solo `transform` e `opacity` tramite CSS:
 
 - **Nessun loop JS**: dopo l'evento del puntatore non viene eseguito alcun codice per frame.
 - **Nessun DPR**: i vettori sono nitidi a qualsiasi densità; niente canvas ridimensionati male quando la barra di Safari cambia altezza.
@@ -69,4 +69,4 @@ La versione Canvas disegnava e ricacheava centinaia di forme a ogni frame, con c
 - `components/FlowerGarden.tsx`: scena SVG, eventi Pointer e gestione dei fiori.
 - `lib/garden.ts`: geometria generata da seed (forma stabile tra re-render e resize).
 
-`index.html` nella radice è lo specchio dell'export Next usato dal deploy branch-based di Pages; `original-index.html` è l'istantanea storica della versione Canvas. La build legge solo `app/`, `components/` e `lib/`.
+`index.html` nella radice è lo specchio dell'export Next usato dal deploy branch-based di Pages. La build legge solo `app/`, `components/` e `lib/`.
