@@ -36,7 +36,7 @@ https://alessiocava2407-sudo.github.io/Dynamic_Flowers/
 - All'avvio non compare nessun fiore: il giardino aspetta la prima interazione.
 - Desktop: muovi il mouse per far crescere i fiori.
 - Touch: tocca o trascina sullo schermo.
-- Quando ci sono fiori, appare l'icona delle forbici in basso a destra: cliccandola i fiori si raggruppano in un mazzo avvolto da un nastro.
+- Quando ci sono fiori, appare l'icona delle forbici in basso a destra: cliccandola i fiori si raggruppano in un mazzo naturale, con gli steli inclinati che convergono verso il nastro.
 - Toccando di nuovo lo schermo il mazzo si scioglie e ricomincia un nuovo giardino.
 - Il numero massimo di fiori dipende dalla dimensione dell'area visibile.
 - I fiori più vecchi vengono sostituiti da nuovi petali che cadono.
@@ -49,6 +49,7 @@ La versione Canvas disegnava e ricacheava centinaia di forme a ogni frame, con c
 - **Resize semplice**: `ResizeObserver` + `100dvh` aggiornano la `viewBox` conforme alle dimensioni reali del contenitore.
 - **DOM legato**: al massimo 10 fiori su mobile e 16 su desktop; i dettagli costosi (nervature, stami, striature) sono disattivati sotto i 720 px.
 - **Gradienti condivisi**: definiti una volta in `<defs>` e riutilizzati da tutti i petali.
+- **Sfondo animato**: stelle e aloni si muovono solo con `transform` e `opacity`, senza ripittura del canvas.
 - **`prefers-reduced-motion`**: le animazioni CSS vengono disattivate e il giardino appare fermo, reagendo comunque al tocco.
 
 ## Struttura

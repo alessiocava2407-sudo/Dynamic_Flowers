@@ -125,14 +125,18 @@ function FlowerShape({
     "--sway-dur": `${px(flower.swayDuration)}s`,
     "--sway-delay": `${px(flower.swayDelay)}s`,
     "--bloom-delay": `${px(flower.bloomDelay)}s`,
+    "--bouquet-delay": `${px(target?.delay ?? 0)}s`,
   };
 
   return (
     <g
       className={target ? "flower flower--bouquet" : "flower"}
-      style={{
-        transform: `translate(${px(place.x)}px, ${px(place.y)}px) rotate(${px(place.rotate)}deg) scale(${px(place.scale)})`,
-      }}
+      style={
+        {
+          transform: `translate(${px(place.x)}px, ${px(place.y)}px) rotate(${px(place.rotate)}deg) scale(${px(place.scale)})`,
+          "--bouquet-delay": `${px(target?.delay ?? 0)}s`,
+        } as Vars
+      }
     >
       <g className="flower__sway" style={vars}>
         <path className="flower__stem" d={geometry.stem} />
@@ -204,18 +208,19 @@ function FallingPetalShape({ petal, w, h }: { petal: FallingPetal; w: number; h:
 
 function Ribbon({ w, h }: { w: number; h: number }) {
   const cx = w / 2;
-  const cy = h * 0.73;
-  const half = Math.min(w * 0.16, 78);
-  const bandH = Math.max(12, Math.min(h * 0.026, 20));
+  const cy = h * 0.83;
+  const half = Math.min(w * 0.1, 52);
+  const bandH = Math.max(10, Math.min(h * 0.018, 14));
+  const drop = Math.min(h * 0.055, 34);
 
   return (
     <g className="ribbon" aria-hidden="true">
       <path
-        d={`M ${px(cx - half * 0.35)} ${px(cy + bandH * 0.3)} Q ${px(cx - half * 0.8)} ${px(cy + h * 0.08)}, ${px(cx - half * 0.5)} ${px(cy + h * 0.13)} L ${px(cx - half * 0.05)} ${px(cy + bandH * 0.5)} Z`}
+        d={`M ${px(cx - half * 0.32)} ${px(cy + bandH * 0.25)} Q ${px(cx - half * 0.7)} ${px(cy + drop * 0.55)}, ${px(cx - half * 0.45)} ${px(cy + drop)} L ${px(cx - half * 0.04)} ${px(cy + bandH * 0.45)} Z`}
         fill="url(#ribbon-loop)"
       />
       <path
-        d={`M ${px(cx + half * 0.35)} ${px(cy + bandH * 0.3)} Q ${px(cx + half * 0.8)} ${px(cy + h * 0.08)}, ${px(cx + half * 0.5)} ${px(cy + h * 0.13)} L ${px(cx + half * 0.05)} ${px(cy + bandH * 0.5)} Z`}
+        d={`M ${px(cx + half * 0.32)} ${px(cy + bandH * 0.25)} Q ${px(cx + half * 0.7)} ${px(cy + drop * 0.55)}, ${px(cx + half * 0.45)} ${px(cy + drop)} L ${px(cx + half * 0.04)} ${px(cy + bandH * 0.45)} Z`}
         fill="url(#ribbon-loop)"
       />
       <rect
@@ -226,9 +231,9 @@ function Ribbon({ w, h }: { w: number; h: number }) {
         rx={px(bandH / 2)}
         fill="url(#ribbon-band)"
       />
-      <ellipse cx={px(cx - half * 0.5)} cy={px(cy)} rx={px(half * 0.34)} ry={px(bandH * 0.72)} fill="url(#ribbon-loop)" />
-      <ellipse cx={px(cx + half * 0.5)} cy={px(cy)} rx={px(half * 0.34)} ry={px(bandH * 0.72)} fill="url(#ribbon-loop)" />
-      <circle cx={px(cx)} cy={px(cy)} r={px(bandH * 0.52)} fill="#c9527b" />
+      <ellipse cx={px(cx - half * 0.42)} cy={px(cy)} rx={px(half * 0.26)} ry={px(bandH * 0.62)} fill="url(#ribbon-loop)" />
+      <ellipse cx={px(cx + half * 0.42)} cy={px(cy)} rx={px(half * 0.26)} ry={px(bandH * 0.62)} fill="url(#ribbon-loop)" />
+      <circle cx={px(cx)} cy={px(cy)} r={px(bandH * 0.45)} fill="#c9527b" />
     </g>
   );
 }
@@ -381,16 +386,20 @@ export default function FlowerGarden() {
           focusable="false"
         >
           <Defs />
-          {(bouquet ?? flowers).map((flower) => (
-            <FlowerShape
-              key={flower.id}
-              flower={flower}
-              w={size.w}
-              h={size.h}
-              detail={detail}
-              target={bouquetTargetsMap?.get(flower.id)}
-            />
-          ))}
+          {(bouquet ?? flowers).map((flower) => {
+            const target = bouquetTargetsMap?.get(flower.id);
+            const shown = target ? { ...flower, height: target.height } : flower;
+            return (
+              <FlowerShape
+                key={flower.id}
+                flower={shown}
+                w={size.w}
+                h={size.h}
+                detail={detail}
+                target={target}
+              />
+            );
+          })}
           {fallers.map((petal) => (
             <FallingPetalShape key={petal.id} petal={petal} w={size.w} h={size.h} />
           ))}

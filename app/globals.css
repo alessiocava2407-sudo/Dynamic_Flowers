@@ -37,12 +37,14 @@ body {
     linear-gradient(180deg, #090a0f 0%, #101326 42%, #1a1423 78%, #050408 100%);
 }
 
-/* Static star field: no JavaScript, no redraw. */
+/* Slowly drifting star field: no JavaScript, no redraw. */
 .garden__stars {
   position: absolute;
   inset: 0;
   pointer-events: none;
   opacity: 0.7;
+  animation: star-drift 26s ease-in-out infinite alternate;
+  will-change: transform, opacity;
   background-image:
     radial-gradient(circle at 8% 16%, rgba(255, 250, 245, 0.85) 0 1px, transparent 1.6px),
     radial-gradient(circle at 19% 42%, rgba(255, 250, 245, 0.5) 0 1px, transparent 1.6px),
@@ -67,6 +69,16 @@ body {
     rgba(110, 94, 115, 0.08) 55%,
     rgba(15, 22, 22, 0.3) 100%
   );
+}
+
+.garden__haze::after {
+  content: "";
+  position: absolute;
+  inset: -80% -20% -20%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(166, 112, 154, 0.16), transparent 68%);
+  opacity: 0.55;
+  animation: haze-drift 20s ease-in-out infinite alternate;
+  will-change: transform, opacity;
 }
 
 .garden__scene {
@@ -145,7 +157,7 @@ body {
 
 /* The whole flower moves to its place in the bouquet when the scissors are used. */
 .flower--bouquet {
-  transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--bouquet-delay, 0s);
 }
 
 .flower--bouquet .flower__sway {
@@ -156,7 +168,17 @@ body {
   transform-box: fill-box;
   transform-origin: 50% 50%;
   pointer-events: none;
-  animation: ribbon-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+  animation: ribbon-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both;
+}
+
+@keyframes star-drift {
+  from { transform: translate3d(0, 0, 0); opacity: 0.58; }
+  to { transform: translate3d(-1.2%, 0.8%, 0); opacity: 0.78; }
+}
+
+@keyframes haze-drift {
+  from { transform: translate3d(-4%, 2%, 0) scale(1); opacity: 0.42; }
+  to { transform: translate3d(4%, -2%, 0) scale(1.08); opacity: 0.72; }
 }
 
 @keyframes ribbon-in {
@@ -267,6 +289,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .garden__stars,
+  .garden__haze::after,
   .flower__sway,
   .flower__stem,
   .flower__glow,

@@ -311,29 +311,62 @@ export function makeFaller(id: number, flower: Flower, h: number): FallingPetal 
 export interface FlowerTarget {
   x: number;
   y: number;
+  /** Stem length used while the flower is in the bouquet, 0..1 of viewport height. */
+  height: number;
   scale: number;
   rotate: number;
+  delay: number;
 }
 
-/** Where each flower goes when the scissors turn the garden into a bouquet. */
+/**
+ * Give the bouquet a natural, slightly irregular shape instead of rigid rows.
+ * The stems still converge at the ribbon, but the heads are scattered across a
+ * rounded fan so the centre stays full. Stem length and tilt are solved from
+ * each head back to its base.
+ */
 export function bouquetTargets(flowers: Flower[], w: number, h: number): Map<number, FlowerTarget> {
   const count = flowers.length;
-  const centerX = w / 2;
-  const baseY = h * 0.86;
-  const spread = Math.min(w * 0.16, 90);
+  if (!count) return new Map();
 
-  return new Map(
-    flowers.map((flower, i) => {
-      const angle = (i / Math.max(1, count)) * TAU;
-      return [
-        flower.id,
-        {
-          x: round(centerX + Math.cos(angle) * spread),
-          y: round(baseY - Math.abs(Math.sin(angle)) * h * 0.05),
-          scale: round(0.52 + (i % 3) * 0.05),
-          rotate: round(Math.sin(angle) * 11),
-        },
-      ];
-    }),
-  );
+  const centerX = w / 2;
+  const baseY = h * 0.88;
+  const baseSpread = Math.min(w * 0.045, 26);
+  const maxSpan = Math.min(w * 0.22, 170);
+  const clusterY = baseY - h * 0.3;
+  const spanY = h * 0.16;
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const targets = new Map<number, FlowerTarget>();
+
+  // Taller flowers end up closer to the middle of the cluster.
+  const ordered = [...flowers].sort((a, b) => b.height - a.height);
+
+  ordered.forEach((flower, index) => {
+    const r = Math.sqrt((index + 0.55) / count);
+    const angle = index * golden + (flower.id % 7) * 0.09;
+    const jitter = mulberry32(flower.id * 48271 + 11);
+
+    const baseX = centerX + Math.cos(angle) * baseSpread * 0.5 + (jitter() - 0.5) * baseSpread * 0.35;
+    const headX = centerX + Math.cos(angle) * r * maxSpan + (jitter() - 0.5) * maxSpan * 0.12;
+    const headY =
+      clusterY -
+      Math.sin(angle) * r * spanY -
+      (1 - r) * h * 0.045 +
+      (jitter() - 0.5) * h * 0.025;
+
+    const dx = headX - baseX;
+    const dy = baseY - headY;
+    const scale = round(0.9 - r * 0.055);
+    const length = Math.hypot(dx, dy) / scale;
+
+    targets.set(flower.id, {
+      x: round(baseX),
+      y: round(baseY),
+      height: round(length / h),
+      scale,
+      rotate: round((Math.atan2(dx, dy) * 180) / Math.PI),
+      delay: round(index * 0.03),
+    });
+  });
+
+  return targets;
 }
